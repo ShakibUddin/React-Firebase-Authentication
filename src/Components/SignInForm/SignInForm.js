@@ -60,7 +60,7 @@ const SignInForm = () => {
                 // Signed in 
                 const user = userCredential.user;
                 console.log(user);
-                setError("Invalid email/password");
+                setError("");
             })
             .catch((error) => {
                 const errorCode = error.code;
