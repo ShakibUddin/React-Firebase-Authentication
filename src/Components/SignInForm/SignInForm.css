@@ -13,3 +13,10 @@ button {
   cursor: pointer;
   color: blue;
 }
+.error-label {
+  padding: 10px;
+  margin: 10px;
+  color: white;
+  text-align: center;
+  background-color: rgb(197, 69, 69);
+}
