@@ -1,8 +1,12 @@
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import initializeFirebase from '../../Firebase/firebase.init';
 import NotFound from '../NotFound/NotFound';
 import SignInForm from '../SignInForm/SignInForm';
 import SignUpForm from '../SignUpForm/SignUpForm';
 import './App.css';
+
+initializeFirebase();
+
 
 function App() {
   return (
