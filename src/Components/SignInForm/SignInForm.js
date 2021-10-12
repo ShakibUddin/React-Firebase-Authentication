@@ -1,83 +1,25 @@
-import { getAuth, GithubAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import React, { useState } from 'react';
-import { useHistory } from "react-router-dom";
+
+import React from 'react';
+import { Link } from "react-router-dom";
+import useAuth from '../../Hooks/useAuth';
 import useEmailValidator from '../../Hooks/useEmailValidator';
 import usePasswordValidator from '../../Hooks/usePasswordValidator';
-import useUserSignIn from '../../Hooks/useUserSignIn';
 import './SignInForm.css';
 
-
-const googleProvider = new GoogleAuthProvider();
-const gitHubProvider = new GithubAuthProvider();
-
 const SignInForm = () => {
-    const auth = getAuth();
-    let [error, setError] = useState("");
-    let [user, setUser] = useUserSignIn();
+    let {
+        handleGoogleSignIn,
+        handleGithubSignIn,
+        handleFirebaseEmailSignIn,
+        error,
+        user
+    } = useAuth();
     let [email, handleEmailInput, emailError] = useEmailValidator();
     let [password, , handlePasswordInput, passwordError] = usePasswordValidator();
-    let history = useHistory();
 
-    let handleGoogleSignIn = () => {
-        signInWithPopup(auth, googleProvider)
-            .then(result => {
-                const { displayName, email, photoURL } = result.user;
-                const loggedInUser = {
-                    name: displayName,
-                    email: email,
-                    photo: photoURL
-                };
-                setUser(loggedInUser);
-            })
-            .catch(error => {
-                console.log(error.message);
-            })
-    }
-    let handleGithubSignIn = () => {
-        signInWithPopup(auth, gitHubProvider)
-            .then(result => {
-                const { displayName, photoURL, email } = result.user;
-                const loggedInUser = {
-                    name: displayName,
-                    email: email,
-                    photo: photoURL
-                }
-                setUser(loggedInUser);
-                console.log(result.user);
-            })
-            .catch(error => {
-                if (error.message === "Firebase: Error (auth/account-exists-with-different-credential).") {
-                    console.log("User with same email already exists")
-                }
-            })
-    }
-
-    let handleEmailSignIn = (e) => {
-        console.log(email, password);
-        e.preventDefault();
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                // Signed in 
-                const user = userCredential.user;
-                console.log(user);
-                setError("");
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(errorMessage);
-                if (errorMessage === 'Firebase: Error (auth/wrong-password).') {
-                    setError("Invalid email/password");
-                }
-
-            });
-    }
-    let handleClick = () => {
-        history.push('./signup');
-    }
 
     return (
-        <form onSubmit={e => { handleEmailSignIn(e) }} className="form">
+        <form onSubmit={e => { handleFirebaseEmailSignIn(e, email, password) }} className="form">
             <h1>SignIn</h1>
             <input required type="email" name="" onBlur={e => { handleEmailInput(e) }} placeholder="Enter Email" />
             {
@@ -93,7 +35,7 @@ const SignInForm = () => {
 
             <input type="submit" value="LOGIN" />
 
-            <p>Don't have an account? <span onClick={handleClick}>Register</span></p>
+            <p>Don't have an account? <Link to='./signup'>Register</Link></p>
             <p>or</p>
             <div className="login-options">
                 <button onClick={handleGoogleSignIn}>Google</button>

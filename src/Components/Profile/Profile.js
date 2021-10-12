@@ -1,24 +1,15 @@
 import React from 'react';
-import { useHistory } from 'react-router';
-import useUserSignIn from '../../Hooks/useUserSignIn';
-
+import useAuth from '../../Hooks/useAuth';
+import './Profile.css';
 const Profile = () => {
-    let [user] = useUserSignIn();
-    let history = useHistory();
-    let handleLogOut = () => {
-        // signOut(auth).then(() => {
-        //     // Sign-out successful.
-        //     history.push("/signin");
-        // }).catch((error) => {
-        //     console.log(error);
-        // });
-
-    }
+    let {
+        user
+    } = useAuth();
+    console.log(user);
     return (
-        <div>
-            <button onClick={handleLogOut}>Logout</button>
+        <div className="profile-div">
             <img src={user.photo} alt="" />
-            <h1>{user.name}</h1>
+            <h1>{user.displayname}</h1>
             <h3>{user.email}</h3>
         </div>
     );
