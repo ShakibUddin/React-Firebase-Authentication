@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import useAuth from '../../Hooks/useAuth';
 import useEmailValidator from '../../Hooks/useEmailValidator';
 import usePasswordValidator from '../../Hooks/usePasswordValidator';
@@ -14,12 +14,23 @@ const SignInForm = () => {
         error,
         user
     } = useAuth();
+    const location = useLocation();
+    const history = useHistory();
+    const redirect_uri = location.state?.from || '/home';
     let [email, handleEmailInput, emailError] = useEmailValidator();
     let [password, , handlePasswordInput, passwordError] = usePasswordValidator();
 
 
+    let redirectUserAfterSignIn = () => {
+        history.push(redirect_uri);
+    }
+
     return (
-        <form onSubmit={e => { handleFirebaseEmailSignIn(e, email, password) }} className="form">
+        <form onSubmit={e => {
+            handleFirebaseEmailSignIn(e, email, password).then(() => {
+                redirectUserAfterSignIn();
+            });
+        }} className="form">
             <h1>SignIn</h1>
             <input required type="email" name="" onBlur={e => { handleEmailInput(e) }} placeholder="Enter Email" />
             {
@@ -38,8 +49,16 @@ const SignInForm = () => {
             <p>Don't have an account? <Link to='./signup'>Register</Link></p>
             <p>or</p>
             <div className="login-options">
-                <button onClick={handleGoogleSignIn}>Google</button>
-                <button onClick={handleGithubSignIn}>Github</button>
+                <button onClick={() => {
+                    handleGoogleSignIn().then(() => {
+                        redirectUserAfterSignIn();
+                    })
+                }}>Google</button>
+                <button onClick={() => {
+                    handleGithubSignIn().then(() => {
+                        redirectUserAfterSignIn();
+                    })
+                }}>Github</button>
             </div>
         </form>
     );

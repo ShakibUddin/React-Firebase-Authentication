@@ -1,5 +1,6 @@
 import { createUserWithEmailAndPassword, getAuth, GithubAuthProvider, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
+import { } from "react-router-dom";
 import initializeFirebase from '../Firebase/firebase.init';
 
 initializeFirebase();
@@ -10,8 +11,9 @@ let useFirebase = () => {
     const gitHubProvider = new GithubAuthProvider();
     let [error, setError] = useState("");
     let [user, setUser] = useState({});
+
     let handleGoogleSignIn = () => {
-        signInWithPopup(auth, googleProvider)
+        return signInWithPopup(auth, googleProvider)
             .then(result => {
                 const { displayName, email, photoURL } = result.user;
                 const loggedInUser = {
@@ -26,7 +28,7 @@ let useFirebase = () => {
             })
     }
     let handleGithubSignIn = () => {
-        signInWithPopup(auth, gitHubProvider)
+        return signInWithPopup(auth, gitHubProvider)
             .then(result => {
                 const { displayName, photoURL, email } = result.user;
                 const loggedInUser = {
@@ -35,7 +37,6 @@ let useFirebase = () => {
                     photo: photoURL
                 }
                 setUser(loggedInUser);
-                console.log(result.user);
             })
             .catch(error => {
                 if (error.message === "Firebase: Error (auth/account-exists-with-different-credential).") {
@@ -46,11 +47,11 @@ let useFirebase = () => {
 
     let handleFirebaseEmailSignIn = (e, email, password) => {
         e.preventDefault();
-        signInWithEmailAndPassword(auth, email, password)
+        return signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 // Signed in 
                 const user = userCredential.user;
-                console.log(user);
+                setUser(user);
                 setError("");
             })
             .catch((error) => {
@@ -65,10 +66,11 @@ let useFirebase = () => {
 
     let handleFirebaseEmailSignUp = (e, email, password) => {
         e.preventDefault();
-        createUserWithEmailAndPassword(auth, email, password)
+        return createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 // Signed in 
                 const user = userCredential.user;
+                setUser(user);
                 console.log(user);
             })
             .catch((error) => {

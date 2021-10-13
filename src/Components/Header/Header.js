@@ -7,10 +7,9 @@ const Header = () => {
     let { user, logout } = useAuth();
     return (
         <nav>
-            {user.email && <Link to="/profile">Profile</Link>}
-            {!user.email && <Link to="/signin">Login</Link>}
-            {!user.email && <Link to="/signup">Register</Link>}
-            {user.email && <Link onClick={logout} to="/signin">Logout</Link>}
+            <Link to="/home">Home</Link>
+            <Link to="/profile">Profile</Link>
+            {user.email ? <Link onClick={logout} to="/home">Logout</Link> : <Link to="/signin">Login</Link>}
         </nav>
     );
 };

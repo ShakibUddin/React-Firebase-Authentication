@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import useAuth from '../../Hooks/useAuth';
 import useEmailValidator from '../../Hooks/useEmailValidator';
 import usePasswordValidator from '../../Hooks/usePasswordValidator';
@@ -12,7 +12,9 @@ const SignUpForm = () => {
     let [email, handleEmailInput, emailError] = useEmailValidator();
     let [password, setPassword, handlePasswordInput, passwordError] = usePasswordValidator();
     let [confirmPasswordError, setConfirmPasswordError] = useState("");
-
+    let location = useLocation();
+    let history = useHistory();
+    let redirect_uri = location.state?.from || '/home';
     let handleConfirmPasswordInput = (e) => {
         if (password !== e.target.value) {
             setConfirmPasswordError("Passwords don't match");
@@ -22,9 +24,16 @@ const SignUpForm = () => {
             setConfirmPasswordError("");
         }
     }
+    let redirectUserAfterSignIn = () => {
+        history.push(redirect_uri);
+    }
 
     return (
-        <form onSubmit={(e) => { handleFirebaseEmailSignUp(e, email, password) }} className="form">
+        <form onSubmit={(e) => {
+            handleFirebaseEmailSignUp(e, email, password).then(() => {
+                redirectUserAfterSignIn();
+            })
+        }} className="form">
             <h1>Sign Up</h1>
             <input required minLength="3" maxLength="30" type="email" name="" onBlur={e => { handleEmailInput(e) }} placeholder="Enter Email" />
             {
