@@ -4,4 +4,5 @@
 
 - React Router
 - Google, Github, Email signin
+- Email verification
 - Private Router
