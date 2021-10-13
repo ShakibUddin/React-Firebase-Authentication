@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, getAuth, GithubAuthProvider, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, GithubAuthProvider, GoogleAuthProvider, onAuthStateChanged, sendEmailVerification, signInWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { } from "react-router-dom";
 import initializeFirebase from '../Firebase/firebase.init';
@@ -10,6 +10,7 @@ let useFirebase = () => {
     const googleProvider = new GoogleAuthProvider();
     const gitHubProvider = new GithubAuthProvider();
     let [error, setError] = useState("");
+    let [alert, setAlert] = useState("");
     let [user, setUser] = useState({});
 
     let handleGoogleSignIn = () => {
@@ -57,7 +58,7 @@ let useFirebase = () => {
             .catch((error) => {
                 const errorMessage = error.message;
                 console.log(errorMessage);
-                if (errorMessage === 'Firebase: Error (auth/wrong-password).') {
+                if (errorMessage === 'Firebase: Error (auth/wrong-password).' || errorMessage === 'Firebase: Error (auth/user-not-found).') {
                     setError("Invalid email/password");
                 }
 
@@ -70,8 +71,11 @@ let useFirebase = () => {
             .then((userCredential) => {
                 // Signed in 
                 const user = userCredential.user;
-                setUser(user);
-                console.log(user);
+                setAlert("Please check your email for a verification link.");
+                sendEmailVerificationLink().then((result) => {
+                    console.log(result);
+                    setUser(user);
+                });
             })
             .catch((error) => {
                 const errorMessage = error.message;
@@ -84,14 +88,21 @@ let useFirebase = () => {
         onAuthStateChanged(auth, user => {
             if (user) {
                 setUser(user);
+                if (user.emailVerified) {
+                    setAlert("Please login.");
+                }
             }
         })
     }, []);
 
+    let sendEmailVerificationLink = () => {
+        return sendEmailVerification(auth.currentUser);
+    }
     let logout = () => {
         signOut(auth)
             .then(() => {
                 setUser({});
+                setAlert("");
             })
     }
 
@@ -101,6 +112,7 @@ let useFirebase = () => {
         handleFirebaseEmailSignIn,
         handleFirebaseEmailSignUp,
         error,
+        alert,
         user,
         logout
     }

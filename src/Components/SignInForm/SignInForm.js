@@ -12,7 +12,7 @@ const SignInForm = () => {
         handleGithubSignIn,
         handleFirebaseEmailSignIn,
         error,
-        user
+        alert
     } = useAuth();
     const location = useLocation();
     const history = useHistory();
@@ -32,6 +32,9 @@ const SignInForm = () => {
             });
         }} className="form">
             <h1>SignIn</h1>
+            {
+                alert.length > 0 && <p className="alert-label">{alert}</p>
+            }
             <input required type="email" name="" onBlur={e => { handleEmailInput(e) }} placeholder="Enter Email" />
             {
                 emailError.length > 0 && <p className="error-label">{emailError}</p>

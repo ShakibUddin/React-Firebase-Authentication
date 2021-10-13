@@ -20,6 +20,13 @@ button {
   background-color: rgb(197, 69, 69);
   text-align: center;
 }
+.alert-label {
+  color: white;
+  padding: 5px;
+  margin: 0px 5px;
+  background-color: rgb(53, 77, 184);
+  text-align: center;
+}
 .login-options {
   display: flex;
   justify-content: space-evenly;

@@ -14,7 +14,7 @@ const SignUpForm = () => {
     let [confirmPasswordError, setConfirmPasswordError] = useState("");
     let location = useLocation();
     let history = useHistory();
-    let redirect_uri = location.state?.from || '/home';
+    let redirect_uri = '/signin';
     let handleConfirmPasswordInput = (e) => {
         if (password !== e.target.value) {
             setConfirmPasswordError("Passwords don't match");
