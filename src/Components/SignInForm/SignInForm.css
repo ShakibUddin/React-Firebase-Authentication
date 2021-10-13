@@ -1,10 +1,10 @@
-.form {
+.signin-form {
   width: 300px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
 }
-.form input {
+.signin-form input {
   padding: 10px;
   margin: 5px;
 }
@@ -13,18 +13,18 @@ button {
   padding: 10px;
   margin: 10px;
 }
-.error-label {
+.error {
+  background-color: rgb(179, 54, 54);
   color: white;
   padding: 5px;
   margin: 0px 5px;
-  background-color: rgb(197, 69, 69);
   text-align: center;
 }
-.alert-label {
+.alert {
+  background-color: rgb(53, 77, 184);
   color: white;
   padding: 5px;
   margin: 0px 5px;
-  background-color: rgb(53, 77, 184);
   text-align: center;
 }
 .login-options {

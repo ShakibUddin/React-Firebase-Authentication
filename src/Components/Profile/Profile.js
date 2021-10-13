@@ -10,7 +10,7 @@ const Profile = () => {
         <div className="profile-div">
             <img src={user.photo} alt="" />
             <h1>{user.displayname}</h1>
-            <h3>{user.email}</h3>
+            <h3>{user.email} ({user.emailVerified ? "Verified" : "Not Verified"})</h3>
         </div>
     );
 };

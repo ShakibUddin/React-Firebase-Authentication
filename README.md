@@ -3,6 +3,7 @@
 # Features
 
 - React Router
+- Private Router
 - Google, Github, Email signin
 - Email verification
-- Private Router
+- React Hook Form with Yup validation

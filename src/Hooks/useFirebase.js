@@ -10,7 +10,6 @@ let useFirebase = () => {
     const googleProvider = new GoogleAuthProvider();
     const gitHubProvider = new GithubAuthProvider();
     let [error, setError] = useState("");
-    let [alert, setAlert] = useState("");
     let [user, setUser] = useState({});
 
     let handleGoogleSignIn = () => {
@@ -46,8 +45,7 @@ let useFirebase = () => {
             })
     }
 
-    let handleFirebaseEmailSignIn = (e, email, password) => {
-        e.preventDefault();
+    let handleFirebaseEmailSignIn = (email, password) => {
         return signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 // Signed in 
@@ -65,21 +63,20 @@ let useFirebase = () => {
             });
     }
 
-    let handleFirebaseEmailSignUp = (e, email, password) => {
-        e.preventDefault();
+    let handleFirebaseEmailSignUp = (email, password) => {
         return createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 // Signed in 
                 const user = userCredential.user;
-                setAlert("Please check your email for a verification link.");
                 sendEmailVerificationLink().then((result) => {
                     console.log(result);
                     setUser(user);
+                    setError("");
                 });
             })
             .catch((error) => {
                 const errorMessage = error.message;
-                console.log(errorMessage);
+                console.log(error.code);
                 setError(errorMessage);
             });
     }
@@ -88,9 +85,6 @@ let useFirebase = () => {
         onAuthStateChanged(auth, user => {
             if (user) {
                 setUser(user);
-                if (user.emailVerified) {
-                    setAlert("Please login.");
-                }
             }
         })
     }, []);
@@ -102,7 +96,6 @@ let useFirebase = () => {
         signOut(auth)
             .then(() => {
                 setUser({});
-                setAlert("");
             })
     }
 
@@ -112,7 +105,6 @@ let useFirebase = () => {
         handleFirebaseEmailSignIn,
         handleFirebaseEmailSignUp,
         error,
-        alert,
         user,
         logout
     }

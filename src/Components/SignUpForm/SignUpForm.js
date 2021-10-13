@@ -1,56 +1,63 @@
-import React, { useState } from 'react';
+import { yupResolver } from '@hookform/resolvers/yup';
+import React from 'react';
+import { useForm } from "react-hook-form";
 import { Link, useHistory, useLocation } from "react-router-dom";
+import * as Yup from 'yup';
 import useAuth from '../../Hooks/useAuth';
-import useEmailValidator from '../../Hooks/useEmailValidator';
-import usePasswordValidator from '../../Hooks/usePasswordValidator';
+import './SignUpForm.css';
 
 const SignUpForm = () => {
+
     let {
-        handleFirebaseEmailSignUp,
-        error,
+        handleFirebaseEmailSignUp, error
     } = useAuth();
-    let [email, handleEmailInput, emailError] = useEmailValidator();
-    let [password, setPassword, handlePasswordInput, passwordError] = usePasswordValidator();
-    let [confirmPasswordError, setConfirmPasswordError] = useState("");
-    let location = useLocation();
+    const location = useLocation();
     let history = useHistory();
-    let redirect_uri = '/signin';
-    let handleConfirmPasswordInput = (e) => {
-        if (password !== e.target.value) {
-            setConfirmPasswordError("Passwords don't match");
-        }
-        else {
-            setPassword(e.target.value);
-            setConfirmPasswordError("");
-        }
-    }
-    let redirectUserAfterSignIn = () => {
-        history.push(redirect_uri);
-    }
+    let redirect_uri = location.state?.from || '/home';
+    const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,20}$/;
+
+    const validationSchema = Yup.object().shape({
+        email: Yup.string()
+            .required('Email is required')
+            .matches(emailRegex, { message: "Invalid email address", excludeEmptyString: true })
+            .min(6, 'Email must be at least 6 characters')
+            .max(30, 'Email must be at least 30 characters'),
+        password: Yup.string()
+            .required('Password is required')
+            .matches(passwordRegex, { message: "Password must have at least one uppercase, one lowercase, one digit and within 8 to 20 chatacters", excludeEmptyString: true })
+            .min(8, 'Password must be at least 8 characters')
+            .max(30, 'Password must be maximum 30 characters'),
+        confirmPassword: Yup.string()
+            .required('Confirm Password is required')
+            .max(30, 'Password must be maximum 30 characters')
+            .oneOf([Yup.ref('password')], 'Passwords must match')
+
+    }).required();
+    const formOptions = { resolver: yupResolver(validationSchema) };
+    const { register, handleSubmit, watch, formState: { errors } } = useForm(formOptions);
+    const onSubmit = data => {
+        console.log(data);
+        if (data.password !== data.confirmPassword) errors.confirmPassword = true;
+        handleFirebaseEmailSignUp(data.email, data.password).then(() => {
+            history.push(redirect_uri);
+        });
+    };
 
     return (
-        <form onSubmit={(e) => {
-            handleFirebaseEmailSignUp(e, email, password).then(() => {
-                redirectUserAfterSignIn();
-            })
-        }} className="form">
-            <h1>Sign Up</h1>
-            <input required minLength="3" maxLength="30" type="email" name="" onBlur={e => { handleEmailInput(e) }} placeholder="Enter Email" />
-            {
-                emailError.length > 0 && <p className="error-label">{emailError}</p>
-            }
-            <input type="password" name="" onBlur={e => { handlePasswordInput(e) }} placeholder="Enter Password" />
-            {
-                passwordError.length > 0 && <p className="error-label">{passwordError}</p>
-            }
-            <input required minLength="1" maxLength="20" type="password" name="" onBlur={e => { handleConfirmPasswordInput(e) }} placeholder="Confirm Password" />
-            {
-                confirmPasswordError.length > 0 && <p className="error-label">{confirmPasswordError}</p>
-            }
-            {
-                error.length > 0 && <p className="error-label">{error}</p>
-            }
-            <input type="submit" value="Create Account" />
+        <form className="signup-form" onSubmit={handleSubmit(onSubmit)}>
+            <h1>Register</h1>
+            <input type="text" placeholder="Enter Email" {...register("email")} />
+            {errors.email && <p className="error">{errors.email?.message}</p>}
+
+            <input type="password" placeholder="Enter Password" {...register("password")} />
+            {errors.password && <p className="error">{errors.password?.message}</p>}
+
+            <input type="password" placeholder="Confirm Password" {...register("confirmPassword")} />
+            {errors.confirmPassword && <p className="error">{errors.confirmPassword?.message}</p>}
+
+            <input type="submit" />
+            {error && <p className="error">{error}</p>}
             <p>Already have an account? <Link to='./signin'>Login</Link></p>
         </form>
     );
