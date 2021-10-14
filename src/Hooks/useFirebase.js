@@ -5,37 +5,41 @@ import initializeFirebase from '../Firebase/firebase.init';
 
 initializeFirebase();
 
-let useFirebase = () => {
+const useFirebase = () => {
     const auth = getAuth();
     const googleProvider = new GoogleAuthProvider();
     const gitHubProvider = new GithubAuthProvider();
-    let [error, setError] = useState("");
-    let [user, setUser] = useState({});
+    const [error, setError] = useState("");
+    const [user, setUser] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
 
-    let handleGoogleSignIn = () => {
+    const handleGoogleSignIn = () => {
         return signInWithPopup(auth, googleProvider)
             .then(result => {
-                const { displayName, email, photoURL } = result.user;
+                const { displayName, email, photoURL, emailVerified } = result.user;
                 const loggedInUser = {
                     name: displayName,
                     email: email,
-                    photo: photoURL
+                    photo: photoURL,
+                    emailVerified: emailVerified
                 };
                 setUser(loggedInUser);
             })
             .catch(error => {
                 console.log(error.message);
             })
+            .finally(() => setIsLoading(false));
     }
-    let handleGithubSignIn = () => {
+    const handleGithubSignIn = () => {
         return signInWithPopup(auth, gitHubProvider)
             .then(result => {
-                const { displayName, photoURL, email } = result.user;
+                const { displayName, email, photoURL, emailVerified } = result.user;
                 const loggedInUser = {
                     name: displayName,
                     email: email,
-                    photo: photoURL
-                }
+                    photo: photoURL,
+                    emailVerified: emailVerified
+                };
                 setUser(loggedInUser);
             })
             .catch(error => {
@@ -43,9 +47,10 @@ let useFirebase = () => {
                     console.log("User with same email already exists")
                 }
             })
+            .finally(() => setIsLoading(false));
     }
 
-    let handleFirebaseEmailSignIn = (email, password) => {
+    const handleFirebaseEmailSignIn = (email, password) => {
         return signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 // Signed in 
@@ -55,48 +60,56 @@ let useFirebase = () => {
             })
             .catch((error) => {
                 const errorMessage = error.message;
-                console.log(errorMessage);
                 if (errorMessage === 'Firebase: Error (auth/wrong-password).' || errorMessage === 'Firebase: Error (auth/user-not-found).') {
                     setError("Invalid email/password");
                 }
 
-            });
+            }).finally(() => setIsLoading(false));
     }
 
-    let handleFirebaseEmailSignUp = (email, password) => {
+    const handleFirebaseEmailSignUp = (email, password) => {
         return createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 // Signed in 
                 const user = userCredential.user;
                 sendEmailVerificationLink().then((result) => {
-                    console.log(result);
                     setUser(user);
                     setError("");
                 });
             })
             .catch((error) => {
                 const errorMessage = error.message;
-                console.log(error.code);
                 setError(errorMessage);
-            });
+            }).finally(() => setIsLoading(false));
     }
 
     useEffect(() => {
         onAuthStateChanged(auth, user => {
             if (user) {
-                setUser(user);
+                const { displayName, email, photoURL, emailVerified } = user;
+                const loggedInUser = {
+                    name: displayName,
+                    email: email,
+                    photo: photoURL,
+                    emailVerified: emailVerified
+                };
+                setUser(loggedInUser);
+            } else {
+                setUser({});
             }
+            setIsLoading(false);
         })
     }, []);
 
-    let sendEmailVerificationLink = () => {
+    const sendEmailVerificationLink = () => {
         return sendEmailVerification(auth.currentUser);
     }
-    let logout = () => {
+    const logout = () => {
         signOut(auth)
             .then(() => {
                 setUser({});
             })
+            .finally(() => setIsLoading(false));
     }
 
     return {
@@ -106,6 +119,7 @@ let useFirebase = () => {
         handleFirebaseEmailSignUp,
         error,
         user,
+        isLoading,
         logout
     }
 }

@@ -4,7 +4,7 @@ import useAuth from '../../Hooks/useAuth';
 import "./Header.css";
 
 const Header = () => {
-    let { user, logout } = useAuth();
+    const { user, logout } = useAuth();
     return (
         <nav>
             <Link to="/home">Home</Link>

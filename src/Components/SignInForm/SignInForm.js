@@ -9,7 +9,7 @@ import './SignInForm.css';
 
 
 const SignInForm = () => {
-    let {
+    const {
         handleGoogleSignIn,
         handleGithubSignIn,
         handleFirebaseEmailSignIn,
@@ -40,7 +40,7 @@ const SignInForm = () => {
         });
     };
 
-    let redirectUserAfterSignIn = () => {
+    const redirectUserAfterSignIn = () => {
         history.push(redirect_uri);
     }
 
@@ -49,18 +49,20 @@ const SignInForm = () => {
             <h1>SignIn</h1>
             {alert && <p className="alert">{alert}</p>}
             <input type="text" placeholder="Enter Email" {...register("email")} />
-            <span>{errors.email?.message}</span>
+            {errors.email && <p className="error">{errors.email?.message}</p>}
 
             <input type="password" placeholder="Enter Password" {...register("password")} />
-            <span>{errors.password?.message}</span>
+            {errors.password && <p className="error">{errors.password?.message}</p>}
 
             <input type="submit" />
             {error && <p className="error">{error}</p>}
             <p>Don't have an account? <Link to='./signup'>Register</Link></p>
             <p>or</p>
             <div className="login-options">
-                <button onClick={handleGoogleSignIn}>Google</button>
-                <button onClick={handleGithubSignIn}>Github</button>
+                <button onClick={() => handleGoogleSignIn().then(() => { redirectUserAfterSignIn() })}>Google</button>
+                <button onClick={() => handleGithubSignIn().then(() => {
+                    redirectUserAfterSignIn();
+                })}>Github</button>
             </div>
         </form>
     );
